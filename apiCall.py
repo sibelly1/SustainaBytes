@@ -10,6 +10,29 @@ from bs4 import BeautifulSoup #this library was imported to be able to read Nutr
 #Spoonacular API key, needed to access API
 API_KEY = "7f5e0f00575f483ba2a9ff81371e0a73"
 
+
+def search_by_selection(ingredients, cuisine, intolerances, diets):
+    url = f'https://api.spoonacular.com/recipes/complexSearch'
+   #Selection of necessary information from the API 
+    params = {
+        'apiKey': API_KEY,
+        'number': 20,  #Number of recipes to fetch
+        'ingredients': ingredients,
+        'cuisine': cuisine,
+        'intolerances': intolerances,
+        'diets': diets
+    }
+
+    print(params)
+
+    response = requests.get(url, params=params)
+    if response.status_code == 200:
+        data = response.json()
+        return data
+    else:
+        st.error("Failed to fetch recipes. Please try again later.")
+        return []    
+
 def search_by_ingredients(ingredients):
     url = f'https://api.spoonacular.com/recipes/findByIngredients'
    #Selection of necessary information from the API 

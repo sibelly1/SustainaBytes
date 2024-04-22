@@ -25,10 +25,10 @@ if "All Cuisines" in selected_cuisine:
     selected_cuisine=cuisine_options
 
 #Multiselect for intolerance and putting all at the end
-intolerance_options = ['Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 'Sesame', 'Shellfish', 'Soy',]
+intolerance_options = ['Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 'Sesame', 'Shellfish', 'Soy']
 selected_intolerance = st.multiselect('Select Intolerance:', intolerance_options + ["All Intolerances"])
 #same code as above to select all intolerances
-if "All Intolerances" in intolerance_options:
+if "All Intolerances" in selected_intolerance:
     selected_intolerance=intolerance_options
 
 #Multiselect for diet
@@ -36,10 +36,12 @@ diet_options = ['Gluten Free', 'Ketogenic', 'Vegetarian', 'Lacto-Vegetarian', 'V
 selected_diet = st.multiselect('Select Diet:', diet_options)
 
 if st.button('Search Recipes by Ingredients'):
-    recipes = apiCall.search_by_ingredients(selected_ingredients)
+    recipes = apiCall.search_by_selection(selected_ingredients, selected_cuisine, selected_intolerance, selected_diet)
 
     #Display fetched recipes
     if recipes:
+        print(f"found {recipes['number']} results")
+        recipes = recipes['results']
         st.subheader("Here are some recipe suggestions:")
         for recipe in recipes:
             st.write(f"- {recipe['title']}")
