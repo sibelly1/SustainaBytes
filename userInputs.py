@@ -8,6 +8,7 @@
 #import libraries
 import streamlit as st
 import apiCall
+import matplotlib.pyplot as plt
 
 
 #Website Title
@@ -44,5 +45,18 @@ if st.button('Search Recipes by Ingredients'):
         for recipe in recipes["results"]:
             st.write(f"- {recipe['title']}")
             st.image(recipe['image'])
+         # Fetching and displaying recipe details
+            details = apiCall.fetch_recipe_details(recipe["id"])
+            if details:
+                st.write("Recipe Details:")
+                st.write(f"Instructions: {details['instructions']}")
+                st.write(f"Servings: {details['servings']}")
+                #getting nutrient info
+                nutrients = apiCall.fetch_nutrition_info(recipe['id'])
+                if nutrients:
+                    st.write("Nutritional Information:")
+                    for nutrient in nutrients['nutrients']:
+                        st.write(f"{nutrient['name']}: {nutrient['amount']} {nutrient['unit']}")
+                        #we could create a pie chart with nutri info
     else:
         st.write("No recipes found. Try adjusting your search criteria.")
