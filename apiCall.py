@@ -8,14 +8,15 @@ import requests
 from bs4 import BeautifulSoup #this library was imported to be able to read Nutrients which were displayed in Json format
 
 #Spoonacular API key, needed to access API
-API_KEY = "7f5e0f00575f483ba2a9ff81371e0a73"
+API_KEY = "1f0f4ea7e9684b38b3f862e974b37399"
 
 def search_by_ingredients(ingredients):
     url = f'https://api.spoonacular.com/recipes/findByIngredients'
    #Selection of necessary information from the API 
     params = {
         'apiKey': API_KEY,
-        'number': 20,  #Number of recipes to fetch
+        'number': 20,  #Number of recipes to fetch, due to free version of API 
+        #Depending on the search inputs no recipes might appear, because the 20 recipes do not match the seacrh, but with more recipes it could match
         'ingredients': ingredients,
     }
 

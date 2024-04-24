@@ -10,6 +10,29 @@ import streamlit as st
 import apiCall
 import matplotlib.pyplot as plt
 
+#Function to check if the food preferences are in the recipes
+def recipe_matches_preferences(diet_options:list, recipe_details):
+
+    if recipe_details:
+        #Check if a preference was selected
+        if 'Vegetarian' in diet_options: 
+            if recipe_details["vegetarian"] == False: #We serach in all recipes if they are vegeterian. If not (False), then we skip the recipe 
+                return False
+        if 'Vegan' in diet_options:
+            if recipe_details["vegan"] == False:
+                return False
+        if 'Dairy Intolerance' in diet_options:
+            if recipe_details["dairyFree"] == False:
+                return False
+        if 'Gluten Free' in diet_options:
+            if recipe_details["glutenFree"] == False:
+                return False
+    
+    if len(diet_options) == 0 or 'None' in diet_options: #If no preference is selected the programm continues to run
+       return True
+
+    return True
+
 
 #Website Title
 st.title("Sustainabytes")
@@ -25,38 +48,40 @@ selected_cuisine = st.multiselect('Select Cuisine:', ["All Cuisines"] + cuisine_
 if "All Cuisines" in selected_cuisine:
     selected_cuisine=cuisine_options
 
-#Multiselect for intolerance and putting all at the end
-intolerance_options = ['Dairy', 'Egg', 'Gluten', 'Grain', 'Peanut', 'Seafood', 'Sesame', 'Shellfish', 'Soy',]
-selected_intolerance = st.multiselect('Select Intolerance:', intolerance_options + ["All Intolerances"])
-#same code as above to select all intolerances
-if "All Intolerances" in intolerance_options:
-    selected_intolerance=intolerance_options
-
-#Multiselect for diet
-diet_options = ['Gluten Free', 'Ketogenic', 'Vegetarian', 'Lacto-Vegetarian', 'Vegan', 'Pescetarian']
-selected_diet = st.multiselect('Select Diet:', diet_options)
+#Multiselect for diet preferences
+diet_options = ['Vegetarian','Vegan', 'Dairy Intolerance', 'Gluten Free', 'None']
+selected_diet = st.multiselect('Diet preferences:', diet_options)
 
 if st.button('Search Recipes by Ingredients'):
     recipes = apiCall.search_by_ingredients_cuisine(selected_ingredients, selected_cuisine)
+
+# here we check if the recipe details include our diet preferences  
 
     #Display fetched recipes
     if recipes:
         st.subheader("Here are some recipe suggestions:")
         for recipe in recipes["results"]:
-            st.write(f"- {recipe['title']}")
-            st.image(recipe['image'])
-         # Fetching and displaying recipe details
+
             details = apiCall.fetch_recipe_details(recipe["id"])
-            if details:
-                st.write("Recipe Details:")
-                st.write(f"Instructions: {details['instructions']}")
-                st.write(f"Servings: {details['servings']}")
-                #getting nutrient info
-                nutrients = apiCall.fetch_nutrition_info(recipe['id'])
-                if nutrients:
-                    st.write("Nutritional Information:")
-                    for nutrient in nutrients['nutrients']:
-                        st.write(f"{nutrient['name']}: {nutrient['amount']} {nutrient['unit']}")
-                        #we could create a pie chart with nutri info
+
+            #Check if recipe matches our preferences (function above)
+            if recipe_matches_preferences(diet_options, details):
+
+                st.write(f"- {recipe['title']}")
+                st.image(recipe['image'])
+            # Fetching and displaying recipe details
+
+                if details:
+                    st.write("Recipe Details:")
+                    st.write(f"Instructions: {details['instructions']}")
+                    st.write(f"Servings: {details['servings']}")
+                    #getting nutrient info
+                    # we could alternatively use the API call from https://spoonacular.com/food-api/docs#Recipe-Nutrition-Label-Widget to get a fancy image of the nutrition info instead of a list
+                    nutrients = apiCall.fetch_nutrition_info(recipe['id'])
+                    if nutrients:
+                        st.write("Nutritional Information:")
+                        for nutrient in nutrients['nutrients']:
+                            st.write(f"{nutrient['name']}: {nutrient['amount']} {nutrient['unit']}")
+                            #we could create a pie chart with nutri info
     else:
         st.write("No recipes found. Try adjusting your search criteria.")
