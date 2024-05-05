@@ -1,7 +1,6 @@
 #save the programm steps in functions
-#make the api call to show only the relevant recipes
 
-#Marti, Alexandra, Lou, Sibelly
+#Marti, Sibelly
 
 import streamlit as st
 import requests
@@ -15,8 +14,8 @@ def search_by_ingredients(ingredients):
    #Selection of necessary information from the API 
     params = {
         'apiKey': API_KEY,
-        'number': 20,  #Number of recipes to fetch, due to free version of API 
-        #Depending on the search inputs no recipes might appear, because the 20 recipes do not match the seacrh, but with more recipes it could match
+        'number': 10,  #Number of recipes to fetch, due to free version of API 
+        #Depending on the search inputs no recipes might appear, because the 10 recipes do not match the seacrh, but with more recipes it could match
         'ingredients': ingredients,
     }
 
@@ -33,7 +32,7 @@ def search_by_ingredients_cuisine(ingredients, cuisine):
    #Selection of necessary information from the API 
     params = {
         'apiKey': API_KEY,
-        'number': 20,  #Number of recipes to fetch
+        'number': 10,  #Number of recipes to fetch
         'cuisine': cuisine,
         'includeIngredients': ingredients,
     }
