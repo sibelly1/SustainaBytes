@@ -64,6 +64,7 @@ if st.button(' 🔍 Find Recipes'):
 
         for recipe in recipes["results"]:
             details = apiCall.fetch_recipe_details(recipe["id"])
+            nutrition_info = apiCall.fetch_nutrition_info(recipe["id"])
 
             # Check if recipe matches our preferences (function above)
             if recipe_matches_preferences(diet_options, details):
@@ -83,10 +84,10 @@ if st.button(' 🔍 Find Recipes'):
                             st.markdown(details['instructions'])
     
                         # Display the pie chart
-                            if nutrients:
+                            if nutrition_info:
                                 nutrient_names = []
                                 nutrient_values = []
-                                for nutrient in nutrients['nutrients']:
+                                for nutrient in nutrition_info['nutrients']:
                                     nutrient_names.append(nutrient['name'])
                                     nutrient_values.append(nutrient['amount'])
                 
@@ -110,10 +111,10 @@ if st.button(' 🔍 Find Recipes'):
                             st.markdown(details['instructions'])
 
                             # Display the pie chart
-                            if nutrients:
+                            if nutrition_info:
                                 nutrient_names = []
                                 nutrient_values = []
-                                for nutrient in nutrients['nutrients']:
+                                for nutrient in nutrition_info['nutrients']:
                                     nutrient_names.append(nutrient['name'])
                                     nutrient_values.append(nutrient['amount'])
                                 
