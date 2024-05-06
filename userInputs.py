@@ -5,22 +5,21 @@ import streamlit as st
 import apiCall
 import matplotlib.pyplot as plt
 
-# --- Function to check if the food preferences are in the recipes ---
+# --- Function to check if recipe matches the user's dietary preferences ---
 def recipe_matches_preferences(diet_options:list, recipe_details):
-
     if recipe_details:
         # Check if a preference was selected
         if 'Vegetarian' in diet_options: 
             if recipe_details["vegetarian"] == False: # We serach in all recipes if they are vegeterian. If not (False), then we skip the recipe 
                 return False
         if 'Vegan' in diet_options:
-            if recipe_details["vegan"] == False:
+            if recipe_details["vegan"] == False: # Check if recipe is vegan
                 return False
         if 'Dairy Intolerance' in diet_options:
-            if recipe_details["dairyFree"] == False:
+            if recipe_details["dairyFree"] == False: # Check if recipe is dairy-free
                 return False
         if 'Gluten Free' in diet_options:
-            if recipe_details["glutenFree"] == False:
+            if recipe_details["glutenFree"] == False: # Check if recipe is gluten-free
                 return False
     
     if len(diet_options) == 0 or 'None' in diet_options: # If no preference is selected the programm continues to run
@@ -30,9 +29,9 @@ def recipe_matches_preferences(diet_options:list, recipe_details):
 
 
 #--- Website App Title & Description ---
-st.set_page_config(page_title="SustainaBytes", page_icon="🥗")
-st.title("SustainaBytes")
-st.write("Find delicious recipes with the ingredients you have at home and help reduce food waste!")
+st.set_page_config(page_title="SustainaBytes", page_icon="🥗") # Set page title and icon
+st.title("SustainaBytes") # Displaying the title
+st.write("Find delicious recipes with the ingredients you have at home and help reduce food waste!") # Displaying description
 
 
 # --- User inputs ---
@@ -51,81 +50,44 @@ selected_diet = st.multiselect('Diet preferences:', diet_options)
 
 # --- Fetch & Display Recipes ---
 if st.button(' 🔍 Find Recipes'):
-    recipes = apiCall.search_by_ingredients_cuisine(selected_ingredients, selected_cuisine)
+    # Fetch recipes based on selected ingredients and cuisine
+    recipes = apiCall.search_by_ingredients_cuisine(selected_ingredients, selected_cuisine) 
 
     if recipes:
-        st.subheader("Here are some recipe suggestions:")
-        
-        # Display recipes in two columns
-        col1, col2 = st.columns(2)
-
-        # Counter for alternating between columns
-        col_counter = 0
+        # Displaying subheader for recipe suggestions
+        st.subheader("Here are some recipe suggestions:") 
 
         for recipe in recipes["results"]:
+            #Fetch details of each recipe
             details = apiCall.fetch_recipe_details(recipe["id"])
-            nutrition_info = apiCall.fetch_nutrition_info(recipe["id"])
 
-            # Check if recipe matches our preferences (function above)
-            if recipe_matches_preferences(diet_options, details):
+            # Checking if the recipe matches dietary preferences with the function above
+            if recipe_matches_preferences(selected_diet, details):  
                 recipe_name = recipe['title']
                 recipe_id = recipe['id']
-
-                if col_counter % 2 == 0:
-                    with col1:
-                        # Display recipe name as a clickable link
-                        st.write(f"### {recipe_name}")
-                        st.image(recipe['image'], use_column_width=True)
-                        
-                        # Fetching and displaying recipe details
-                        if details:
-                            st.write(f"Servings: {details['servings']}")
-                            st.write("Recipe Instructions:")
-                            st.markdown(details['instructions'])
+                
+                #Display recipe name in a larger font size & image
+                st.write(f"### {recipe_name}")
+                st.image(recipe['image'])
+                
+                #Display details
+                if details:
+                    st.write(f"Servings: {details['servings']}")
+                    st.write("Recipe Instructions:")
+                    st.write(details['instructions'])
     
-                        # Display the pie chart
-                            if nutrition_info:
-                                nutrient_names = []
-                                nutrient_values = []
-                                for nutrient in nutrition_info['nutrients']:
-                                    nutrient_names.append(nutrient['name'])
-                                    nutrient_values.append(nutrient['amount'])
-                
-                        # Display pie chart for nutrients
-                                st.write("Pie Chart of Nutrients:")
-                                fig, ax = plt.subplots()
-                                fig.set_size_inches(8, 8)  # Adjust the figure size here
-                                ax.pie(nutrient_values[:8], labels=nutrient_names[:8], autopct='%1.1f%%') # We only display a pie chart for the first 8 nutrients in the list (can be adjusted)
-                                st.pyplot(fig)
+                #Display nutrient information
+                nutrients = apiCall.fetch_nutrition_info(recipe['id']) # Fetch nutrient information
+                if nutrients:
+                    # Extract nutrient names and values for the pie chart
+                    nutrient_names = [nutrient['name'] for nutrient in nutrients['nutrients']]
+                    nutrient_values = [nutrient['amount'] for nutrient in nutrients['nutrients']]
 
-                else:
-                    with col2:
-                        # Display recipe name as a clickable link
-                        st.write(f"### {recipe_name}")
-                        st.image(recipe['image'], use_column_width=True)
-                        
-                        # Fetching and displaying recipe details
-                        if details:
-                            st.write(f"Servings: {details['servings']}")
-                            st.write("Recipe Instructions:")
-                            st.markdown(details['instructions'])
+                    # Display pie chart of nutrients
+                    st.write("Pie Chart of Nutrients:")
+                    fig, ax = plt.subplots()
+                    ax.pie(nutrient_values[:3], labels=nutrient_names[:3], autopct='%1.1f%%') # Only taking the top 3 nutrients (can be adjusted)
+                    st.pyplot(fig) #Display 
 
-                            # Display the pie chart
-                            if nutrition_info:
-                                nutrient_names = []
-                                nutrient_values = []
-                                for nutrient in nutrition_info['nutrients']:
-                                    nutrient_names.append(nutrient['name'])
-                                    nutrient_values.append(nutrient['amount'])
-                                
-                                # Display pie chart for nutrients
-                                st.write("Pie Chart of Nutrients:")
-                                fig, ax = plt.subplots()
-                                fig.set_size_inches(8, 8)  # Adjust the figure size here
-                                ax.pie(nutrient_values[:8], labels=nutrient_names[:8], autopct='%1.1f%%') # We only display a pie chart for the first 8 nutrients in the list (can be adjusted)
-                                st.pyplot(fig)
-                
-                col_counter += 1
-
-        else:
-            st.write("No recipes found. Try adjusting your search criteria.")
+    else:
+        st.write("No recipes found. Try adjusting your search criteria.")
