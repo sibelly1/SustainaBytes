@@ -4,6 +4,7 @@
 import streamlit as st
 import apiCall
 import matplotlib.pyplot as plt
+from bs4 import BeautifulSoup #this library was imported to be able to read Nutrients which were displayed in Json format
 
 # --- Function to check if recipe matches the user's dietary preferences ---
 def recipe_matches_preferences(diet_options:list, recipe_details):
@@ -79,15 +80,21 @@ if st.button(' 🔍 Find Recipes'):
                 #Display nutrient information
                 nutrients = apiCall.fetch_nutrition_info(recipe['id']) # Fetch nutrient information
                 if nutrients:
-                    # Extract nutrient names and values for the pie chart
-                    nutrient_names = [nutrient['name'] for nutrient in nutrients['nutrients']]
-                    nutrient_values = [nutrient['amount'] for nutrient in nutrients['nutrients']]
+    # Filter out 'Calories' nutrient
+                    nutrients_filtered = [nutrient for nutrient in nutrients['nutrients'] if nutrient['name'] != 'Calories']
+    
+    # Extract nutrient names and values per serving
+                    nutrient_names = [nutrient['name'] for nutrient in nutrients_filtered]
+                    nutrient_values_per_serving = [nutrient['amount'] / nutrient['percentOfDailyNeeds'] for nutrient in nutrients_filtered]
+                    nutrient_units = [nutrient['unit'] for nutrient in nutrients_filtered]
 
-                    # Display pie chart of nutrients
-                    st.write("Pie Chart of Nutrients:")
+    # Calculate the total nutrient amount per serving
+                    total_nutrient_per_serving = sum(nutrient_values_per_serving)
+
+                    st.write("Pie Chart of Nutrients (per serving, excluding Calories):")
                     fig, ax = plt.subplots()
-                    ax.pie(nutrient_values[:3], labels=nutrient_names[:3], autopct='%1.1f%%') # Only taking the top 3 nutrients (can be adjusted)
-                    st.pyplot(fig) #Display 
-
+                    ax.pie(nutrient_values_per_serving[:6], labels=nutrient_names[:6], autopct=lambda pct: f"{pct:.1f}% ({pct/100*total_nutrient_per_serving:.1f}{nutrient_units[:6][int(pct / 100. * len(nutrient_units[:6]))]})")
+                    st.pyplot(fig)#Display 
+            
     else:
-        st.write("No recipes found. Try adjusting your search criteria.")
+        st.write("We couldn't find recipes with these criteria :/")
