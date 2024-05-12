@@ -85,12 +85,13 @@ if st.button(' 🔍 Find Recipes'):
     
     # Extract nutrient names and values per serving
                     nutrient_names = [nutrient['name'] for nutrient in nutrients_filtered]
-                    nutrient_values_per_serving = [nutrient['amount'] / nutrient['percentOfDailyNeeds'] for nutrient in nutrients_filtered]
+                    nutrient_values_per_serving = [nutrient['amount'] / (nutrient['percentOfDailyNeeds']+0.001) for nutrient in nutrients_filtered]
                     nutrient_units = [nutrient['unit'] for nutrient in nutrients_filtered]
 
     # Calculate the total nutrient amount per serving
                     total_nutrient_per_serving = sum(nutrient_values_per_serving)
 
+                    # The following section was written by Chatgpt 
                     st.write("Pie Chart of Nutrients (per serving, excluding Calories):")
                     fig, ax = plt.subplots()
                     ax.pie(nutrient_values_per_serving[:6], labels=nutrient_names[:6], autopct=lambda pct: f"{pct:.1f}% ({pct/100*total_nutrient_per_serving:.1f}{nutrient_units[:6][int(pct / 100. * len(nutrient_units[:6]))]})")

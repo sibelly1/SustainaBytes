@@ -13,7 +13,7 @@ from bs4 import BeautifulSoup #this library was imported to be able to read Nutr
 #5397833665e64aaf9e8e2bcc02471f85
 #f4d2ad2c0486436095b611c765a757f2
 
-API_KEY = "f4d2ad2c0486436095b611c765a757f2"
+API_KEY = "1f0f4ea7e9684b38b3f862e974b37399"
 
 def search_by_ingredients(ingredients):
     url = f'https://api.spoonacular.com/recipes/findByIngredients'
