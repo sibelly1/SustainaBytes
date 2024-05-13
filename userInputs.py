@@ -1,5 +1,3 @@
-#Marti, Sibelly
-
 # --- Import libraries ---
 import streamlit as st
 import apiCall
@@ -77,23 +75,28 @@ if st.button(' 🔍 Find Recipes'):
                     st.write("Recipe Instructions:")
                     st.write(details['instructions'])
     
-                #Display nutrient information
+                # --- Displaying DATA nutrient information through a pie chart ---
                 nutrients = apiCall.fetch_nutrition_info(recipe['id']) # Fetch nutrient information
                 if nutrients:
-    # Filter out 'Calories' nutrient
+    # Filtering out 'Calories' nutrient as it posed a problem in the pie chart, 
+    # when calories appeared, the pie chart didn't have enough space to show the other more important nutrients (as calories took arount 95% of the space)
+    # Furthermore, calories aren't a nutrient and that is why we filter it out
                     nutrients_filtered = [nutrient for nutrient in nutrients['nutrients'] if nutrient['name'] != 'Calories']
     
-    # Extract nutrient names and values per serving
+    # Extracting nutrient names and values per serving, as the pie chart will show the nutrients per serving
                     nutrient_names = [nutrient['name'] for nutrient in nutrients_filtered]
+                    #here we add +0.001, as some issue arrises where the pie chart can't be shown as it isn't divisible by 0
                     nutrient_values_per_serving = [nutrient['amount'] / (nutrient['percentOfDailyNeeds']+0.001) for nutrient in nutrients_filtered]
                     nutrient_units = [nutrient['unit'] for nutrient in nutrients_filtered]
 
     # Calculate the total nutrient amount per serving
                     total_nutrient_per_serving = sum(nutrient_values_per_serving)
 
-                    # The following section was written by Chatgpt 
-                    st.write("Pie Chart of Nutrients (per serving, excluding Calories):")
+                    # The following section was written with the help of Chatgpt 
+                    st.write("Pie Chart of Nutrients per serving (without Calories)")
                     fig, ax = plt.subplots()
+                    #This line creates a pie chart with Matplotlib and then plots the nutrient amounts (without calories) in grams in the pie chart
+                    #it also gives a percentage of the nutrients alongside the gram amounts. All of this with the name of the nutrient
                     ax.pie(nutrient_values_per_serving[:6], labels=nutrient_names[:6], autopct=lambda pct: f"{pct:.1f}% ({pct/100*total_nutrient_per_serving:.1f}{nutrient_units[:6][int(pct / 100. * len(nutrient_units[:6]))]})")
                     st.pyplot(fig)#Display 
             
