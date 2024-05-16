@@ -95,9 +95,8 @@ if st.button(' 🔍 Find Recipes'):
                     # The following section was written with the help of Chatgpt 
                     st.write("Pie Chart of Nutrients per serving (without Calories)")
                     fig, ax = plt.subplots()
-                    #This line creates a pie chart with Matplotlib and then plots the nutrient amounts (without calories) in grams in the pie chart
+                    #ChatGPT helped with next line of code that creates a pie chart with Matplotlib and then plots the nutrient amounts (without calories) in grams in the pie chart
                     #it also gives a percentage of the nutrients alongside the gram amounts. All of this with the name of the nutrient
-                    #ChatGPT helped with next line of code with prompt "Visualize the distribution of the top six nutrient values per serving using a pie chart. Ensure that the labels correspond to the nutrient names, and each segment of the pie displays the percentage and absolute value of the respective nutrient, formatted with one decimal point precision."
                     ax.pie(nutrient_values_per_serving[:6], labels=nutrient_names[:6], autopct=lambda pct: f"{pct:.1f}% ({pct/100*total_nutrient_per_serving:.1f}{nutrient_units[:6][int(pct / 100. * len(nutrient_units[:6]))]})")
                     st.pyplot(fig)#Display 
             
